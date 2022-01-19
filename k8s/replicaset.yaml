@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myserver
+  labels:
+    app: myserver
+spec:
+  selector:
+    matchLabels:
+      app: myserver
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "myserver"
+    spec:
+      containers:
+        - name: myserver
+          image: "kadmo/hello-go:latest"

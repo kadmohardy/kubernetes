@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myserver
+  labels:
+    app: myserver
+spec:
+  selector:
+    matchLabels:
+      app: myserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "myserver"
+    spec:
+      containers:
+        - name: myserver
+          image: "kadmo/hello-go:v10"
+
+          resources:
+            requests:
+              cpu: "0.05"
+              memory: 20Mi
+            limits:
+              cpu: "0.05"
+              memory: 25Mi
+
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            periodSeconds: 4
+            failureThreshold: 30
+
+          # readinessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: 80
+          #   periodSeconds: 3
+          #   failureThreshold: 1
+          #   # initialDelaySeconds: 10
+
+          # livenessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: 8000
+          #   periodSeconds: 5
+          #   failureThreshold: 1
+          #   timeoutSeconds: 1
+          #   successThreshold: 1
+          #   # initialDelaySeconds: 15
+
+          envFrom:
+            - configMapRef:
+                name: myserver-env
+            - secretRef:
+                name: myserver-secret
+
+          volumeMounts:
+            - mountPath: "/go/myfamily"
+              name: config
+              readOnly: true
+            - mountPath: "/go/pvc"
+              name: myserver-volume
+
+      volumes:
+        - name: myserver-volume
+          persistentVolumeClaim:
+            claimName: myserver-pvc
+
+        - name: config
+          configMap:
+            name: configmap-family
+            items:
+              - key: members
+                path: "family.txt"

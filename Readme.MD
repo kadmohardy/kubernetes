@@ -1,0 +1,1 @@
+# Boilerplate to deploy docker container on eks
